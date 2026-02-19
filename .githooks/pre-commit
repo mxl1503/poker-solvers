@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+if ! git diff --cached --name-only --diff-filter=ACMR | grep -q '^kuhn-solver/'; then
+  exit 0
+fi
+
+echo "Running kuhn-solver linter..."
+make -C kuhn-solver lint

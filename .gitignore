@@ -1,0 +1,47 @@
+# C/C++ build outputs
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Debug symbols / profiling
+*.dSYM/
+*.pdb
+*.prof
+*.gcda
+*.gcno
+*.gcov
+
+# Build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+Makefile.in
+
+# Local binaries from this repo
+kuhn-solver/kuhn_solver
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Misc temp files
+*.tmp
+*.temp
+*.log
