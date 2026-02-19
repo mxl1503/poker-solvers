@@ -1,1 +1,0 @@
-# counterfactual-regret-minimisation-solver

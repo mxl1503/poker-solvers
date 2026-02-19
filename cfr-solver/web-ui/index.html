@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CFR Tree Builder</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <h1>CFR Tree Builder</h1>
+        <p>Define ranges and tree-building rules for solver input.</p>
+      </header>
+
+      <section class="grid two-col">
+        <article class="panel">
+          <h2>Core Setup</h2>
+          <div class="field-grid">
+            <label>
+              Board
+              <input id="board" type="text" placeholder="Qs Jh 2h" />
+            </label>
+            <label>
+              Effective Stack (bb)
+              <input id="effectiveStack" type="number" min="1" step="1" value="100" />
+            </label>
+            <label>
+              Starting Pot (bb)
+              <input id="startingPot" type="number" min="0" step="0.5" value="5" />
+            </label>
+            <label>
+              Starting Street
+              <select id="startingStreet">
+                <option value="preflop">Preflop</option>
+                <option value="flop" selected>Flop</option>
+                <option value="turn">Turn</option>
+                <option value="river">River</option>
+              </select>
+            </label>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Ranges</h2>
+          <div class="field-grid">
+            <label>
+              OOP Range
+              <textarea
+                id="oopRange"
+                rows="4"
+                placeholder="AA,KK,QQ,AKs,AQs,..."
+              ></textarea>
+            </label>
+            <div class="range-tools">
+              <div class="range-tools-header">
+                <button id="oopMatrixToggle" class="matrix-toggle" type="button" aria-expanded="false">
+                  <span class="matrix-toggle-icon">▸</span>
+                  OOP Grid
+                </button>
+                <div class="range-tools-actions matrix-content-actions hidden" id="oopMatrixActions">
+                  <button id="oopSelectAllBtn" type="button">Select all</button>
+                  <button id="oopClearBtn" type="button">Clear</button>
+                </div>
+              </div>
+              <div id="oopMatrixContent" class="matrix-content hidden">
+                <div id="oopMatrix" class="range-matrix" aria-label="OOP range matrix"></div>
+                <p id="oopMatrixCount" class="matrix-count"></p>
+              </div>
+            </div>
+            <label>
+              IP Range
+              <textarea
+                id="ipRange"
+                rows="4"
+                placeholder="AA,KK,QQ,AKs,AQs,..."
+              ></textarea>
+            </label>
+            <div class="range-tools">
+              <div class="range-tools-header">
+                <button id="ipMatrixToggle" class="matrix-toggle" type="button" aria-expanded="false">
+                  <span class="matrix-toggle-icon">▸</span>
+                  IP Grid
+                </button>
+                <div class="range-tools-actions matrix-content-actions hidden" id="ipMatrixActions">
+                  <button id="ipSelectAllBtn" type="button">Select all</button>
+                  <button id="ipClearBtn" type="button">Clear</button>
+                </div>
+              </div>
+              <div id="ipMatrixContent" class="matrix-content hidden">
+                <div id="ipMatrix" class="range-matrix" aria-label="IP range matrix"></div>
+                <p id="ipMatrixCount" class="matrix-count"></p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid two-col">
+        <article class="panel">
+          <h2>IP Sizing Rules</h2>
+          <div class="street-group">
+            <h3>Flop</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="ipFlopBet" type="text" value="33,66,100" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="ipFlopRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="ipFlopAllIn" type="checkbox" />
+                Add all-in
+              </label>
+            </div>
+          </div>
+          <div class="street-group">
+            <h3>Turn</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="ipTurnBet" type="text" value="66,100" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="ipTurnRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="ipTurnAllIn" type="checkbox" />
+                Add all-in
+              </label>
+            </div>
+          </div>
+          <div class="street-group">
+            <h3>River</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="ipRiverBet" type="text" value="75,125" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="ipRiverRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="ipRiverAllIn" type="checkbox" checked />
+                Add all-in
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>OOP Sizing Rules</h2>
+          <div class="street-group">
+            <h3>Flop</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="oopFlopBet" type="text" value="33,66,100" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="oopFlopRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="oopFlopAllIn" type="checkbox" />
+                Add all-in
+              </label>
+              <label class="check">
+                <input id="oopFlopLead" type="checkbox" checked />
+                Allow OOP lead
+              </label>
+            </div>
+          </div>
+          <div class="street-group">
+            <h3>Turn</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="oopTurnBet" type="text" value="66,100" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="oopTurnRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="oopTurnAllIn" type="checkbox" />
+                Add all-in
+              </label>
+              <label class="check">
+                <input id="oopTurnLead" type="checkbox" checked />
+                Allow OOP lead
+              </label>
+            </div>
+          </div>
+          <div class="street-group">
+            <h3>River</h3>
+            <div class="field-grid">
+              <label>
+                Bet Sizes (% pot, comma-separated)
+                <input id="oopRiverBet" type="text" value="75,125" />
+              </label>
+              <label>
+                Raise Sizes (% pot, comma-separated)
+                <input id="oopRiverRaise" type="text" value="250" />
+              </label>
+              <label class="check">
+                <input id="oopRiverAllIn" type="checkbox" checked />
+                Add all-in
+              </label>
+              <label class="check">
+                <input id="oopRiverLead" type="checkbox" checked />
+                Allow OOP lead
+              </label>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid two-col">
+        <article class="panel">
+          <h2>Tree Rules</h2>
+          <div class="field-grid">
+            <label>
+              Maximum Raises Per Node
+              <input id="maxRaises" type="number" min="1" max="10" value="2" />
+            </label>
+            <label>
+              Minimum Bet Size (% pot)
+              <input id="minBetPercent" type="number" min="0" max="500" value="20" />
+            </label>
+            <label>
+              All-in Threshold (% of stack)
+              <input id="allInThreshold" type="number" min="0" max="100" value="67" />
+            </label>
+            <label class="check">
+              <input id="allowDonk" type="checkbox" checked />
+              Allow donk bets
+            </label>
+            <label class="check">
+              <input id="allowLimpTree" type="checkbox" />
+              Include limp tree
+            </label>
+          </div>
+          <div class="actions">
+            <button id="generateBtn" type="button">Generate Tree Config</button>
+            <button id="downloadBtn" type="button">Download JSON</button>
+            <label class="upload">
+              Load JSON
+              <input id="uploadInput" type="file" accept="application/json" />
+            </label>
+          </div>
+          <p id="status" class="status"></p>
+        </article>
+
+        <article class="panel">
+          <h2>Generated Config</h2>
+          <pre id="output"></pre>
+        </article>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

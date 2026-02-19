@@ -1,0 +1,279 @@
+:root {
+  --bg: #f3f6f2;
+  --panel: #ffffff;
+  --panel-border: #d7decd;
+  --text: #253226;
+  --muted: #5c6f5d;
+  --accent: #406e48;
+  --accent-strong: #2f5736;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top right, #dce8d6 0%, var(--bg) 45%);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  margin-bottom: 16px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.app-header p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.panel h3 {
+  margin: 0 0 8px;
+  color: var(--accent-strong);
+}
+
+.field-grid {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #b7c4ad;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.street-group + .street-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #d7decd;
+}
+
+.check {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+}
+
+.check input {
+  margin: 0;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button,
+.upload {
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.upload {
+  position: relative;
+  overflow: hidden;
+}
+
+.upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+button:hover,
+.upload:hover {
+  background: var(--accent-strong);
+}
+
+.status {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  color: var(--accent-strong);
+}
+
+pre {
+  margin: 0;
+  border: 1px solid #d7decd;
+  border-radius: 8px;
+  background: #f8fbf6;
+  padding: 10px;
+  min-height: 240px;
+  overflow: auto;
+  font-size: 0.8rem;
+}
+
+.range-tools {
+  border: 1px solid #d7decd;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f8fbf6;
+}
+
+.range-tools-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.range-tools-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.matrix-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #a9b9a1;
+  background: #fff;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.matrix-toggle-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.matrix-toggle[aria-expanded="true"] .matrix-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.range-tools-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+.matrix-content {
+  margin-top: 8px;
+}
+
+.range-tools-actions button {
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.range-matrix {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(20px, 1fr));
+  gap: 3px;
+}
+
+.range-cell {
+  border: 1px solid #a9b9a1;
+  border-radius: 4px;
+  padding: 4px 1px;
+  min-height: 24px;
+  font-size: 0.65rem;
+  line-height: 1.05;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.range-cell.pair {
+  background: #d8e9d2;
+}
+
+.range-cell.suited {
+  background: #d5e3f0;
+}
+
+.range-cell.offsuit {
+  background: #efe2d1;
+}
+
+.range-cell.selected {
+  background: #2f5736;
+  color: #fff;
+  border-color: #2f5736;
+}
+
+.matrix-count {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .range-matrix {
+    grid-template-columns: repeat(13, minmax(18px, 1fr));
+  }
+}
