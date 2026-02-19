@@ -19,7 +19,7 @@ Even though the game is small, it still has hidden information and bluffing, whi
 
 ## How this solver works
 
-`main.cc` trains strategies using vanilla CFR via the `KuhnSolver` class:
+`kuhn_solver.cpp` trains strategies using vanilla CFR via the `KuhnSolver` class:
 
 1. Sample a random deal of two cards from `J/Q/K`.
 2. Traverse the game tree recursively from the current history.

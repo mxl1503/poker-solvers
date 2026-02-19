@@ -6,14 +6,6 @@
 #include <unordered_map>
 #include <vector>
 
-constexpr auto NUM_ACTIONS = 2;
-constexpr auto CARD_NAMES = std::array{'J', 'Q', 'K'};
-
-struct InfoNode {
-    std::vector<double> regret_sum = std::vector<double>(NUM_ACTIONS, 0.0);
-    std::vector<double> strategy_sum = std::vector<double>(NUM_ACTIONS, 0.0);
-};
-
 class KuhnSolver {
    public:
     auto train(int iterations) -> double {
@@ -33,16 +25,16 @@ class KuhnSolver {
         std::cout << "\nAverage strategy:\n\n";
 
         auto info_sets = std::vector<std::string>();
-        info_sets.reserve(nodes_.size());
-        for (auto& [key, _] : nodes_) info_sets.push_back(key);
+        info_sets.reserve(regrets_.size());
+        for (auto& [key, _] : regrets_) info_sets.push_back(key);
         std::sort(info_sets.begin(), info_sets.end());
 
         constexpr auto EPS = 1e-4;
         for (auto& info_set : info_sets) {
-            auto& node = nodes_[info_set];
-            auto sum = node.strategy_sum[0] + node.strategy_sum[1];
-            auto check_freq = (sum > 0) ? node.strategy_sum[0] / sum : 0.5;
-            auto bet_freq = (sum > 0) ? node.strategy_sum[1] / sum : 0.5;
+            auto& strat_sum = strategy_sums_[info_set];
+            auto sum = strat_sum[0] + strat_sum[1];
+            auto check_freq = (sum > 0) ? strat_sum[0] / sum : 0.5;
+            auto bet_freq = (sum > 0) ? strat_sum[1] / sum : 0.5;
             if (check_freq < EPS) check_freq = 0.0;
             if (bet_freq < EPS) bet_freq = 0.0;
 
@@ -53,23 +45,26 @@ class KuhnSolver {
     }
 
    private:
-    std::unordered_map<std::string, InfoNode> nodes_;
+    std::unordered_map<std::string, std::vector<double>> regrets_;
+    std::unordered_map<std::string, std::vector<double>> strategy_sums_;
 
-    auto get_strategy(InfoNode& node, double reach_prob) -> std::vector<double> {
-        auto strategy = std::vector<double>(NUM_ACTIONS, 0.0);
+    auto get_strategy(const std::string& key, double reach_prob) -> std::vector<double> {
+        auto& regret = regrets_[key];
+        auto& strat_sum = strategy_sums_[key];
+        if (regret.empty()) regret.resize(2, 0.0);
+        if (strat_sum.empty()) strat_sum.resize(2, 0.0);
+
+        auto strategy = std::vector<double>(2, 0.0);
         auto normalizing_sum = 0.0;
 
-        for (auto a = 0; a < NUM_ACTIONS; ++a) {
-            strategy[a] = std::max(node.regret_sum[a], 0.0);
+        for (auto a = 0; a < 2; ++a) {
+            strategy[a] = std::max(regret[a], 0.0);
             normalizing_sum += strategy[a];
         }
 
-        for (auto a = 0; a < NUM_ACTIONS; ++a) {
-            if (normalizing_sum > 0)
-                strategy[a] /= normalizing_sum;
-            else
-                strategy[a] = 1.0 / NUM_ACTIONS;
-            node.strategy_sum[a] += reach_prob * strategy[a];
+        for (auto a = 0; a < 2; ++a) {
+            strategy[a] = (normalizing_sum > 0) ? strategy[a] / normalizing_sum : 0.5;
+            strat_sum[a] += reach_prob * strategy[a];
         }
 
         return strategy;
@@ -82,14 +77,13 @@ class KuhnSolver {
         auto payoff = terminal_payoff(c0, c1, history);
         if (payoff != 0) return payoff;
 
-        auto info_key = std::string(1, CARD_NAMES[player == 0 ? c0 : c1]) + history;
-        auto& node = nodes_[info_key];
-        auto strategy = get_strategy(node, player == 0 ? pi0 : pi1);
+        auto info_key = std::string(1, "JQK"[player == 0 ? c0 : c1]) + history;
+        auto strategy = get_strategy(info_key, player == 0 ? pi0 : pi1);
 
-        auto action_util = std::vector<double>(NUM_ACTIONS, 0.0);
+        auto action_util = std::vector<double>(2, 0.0);
         auto node_util = 0.0;
 
-        for (auto a = 0; a < NUM_ACTIONS; ++a) {
+        for (auto a = 0; a < 2; ++a) {
             auto next = history + (a == 0 ? "c" : "b");
             action_util[a] = (player == 0) ? -cfr(c0, c1, next, pi0 * strategy[a], pi1)
                                            : -cfr(c0, c1, next, pi0, pi1 * strategy[a]);
@@ -97,8 +91,8 @@ class KuhnSolver {
         }
 
         auto opp_reach = (player == 0) ? pi1 : pi0;
-        for (auto a = 0; a < NUM_ACTIONS; ++a)
-            node.regret_sum[a] += opp_reach * (action_util[a] - node_util);
+        auto& regret = regrets_[info_key];
+        for (auto a = 0; a < 2; ++a) regret[a] += opp_reach * (action_util[a] - node_util);
 
         return node_util;
     }

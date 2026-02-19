@@ -1,7 +1,7 @@
 CXX := g++
 CXXFLAGS := -std=c++20 -O2 -Wall -Wextra -pedantic
 TARGET := kuhn_solver
-SRC := main.cc
+SRC := kuhn_solver.cpp
 ITER ?= 100000000
 
 .PHONY: all run lint clean
