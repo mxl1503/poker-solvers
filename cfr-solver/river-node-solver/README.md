@@ -1,27 +1,15 @@
 # River Node CFR Solver
 
-A simplified Counterfactual Regret Minimization (CFR) solver for river-only
+A Counterfactual Regret Minimization (CFR) solver for river-only
 heads-up poker decisions. Reads a JSON config (compatible with the
-`cfr-tree-builder` web UI) and computes Nash Equilibrium strategies.
-
-## How it works
-
-| Concept | Implementation |
-|---|---|
-| Hand abstraction | Equity **buckets** (0 = weakest … N-1 = strongest) |
-| Algorithm | Vanilla CFR with regret matching |
-| Traversal | Full game-tree enumeration over all bucket pairs |
-| Showdown | Higher bucket wins; ties chop |
-
-OOP acts first. The tree is built implicitly from the sizing config — each
-node's legal actions (check, bet, fold, call, raise, all-in) are derived on the
-fly from pot geometry and the JSON parameters.
+`cfr-tree-builder` web UI) and computes approximate Nash Equilibrium
+strategies over actual hand combos.
 
 ## Build
 
 ```bash
-make          # downloads nlohmann/json header, compiles
-make run      # run with examples/river_config.json
+make
+make run
 ```
 
 Requires **g++** with C++20 support and **curl** (for the one-time header
@@ -30,29 +18,44 @@ download).
 ## Usage
 
 ```bash
-./river_solver <config.json> [iterations]
+./river_solver <config.json> [iterations | --exploit-pct P] [--json]
 ```
 
-`iterations` on the command line overrides the value in the JSON file.
+Three stopping modes:
+
+| Mode | Invocation | Behaviour |
+|---|---|---|
+| Convergence (default) | `./river_solver config.json` | Train until exploitability ≤ target % pot |
+| Fixed iterations | `./river_solver config.json 5000` | Run exactly N iterations |
+| Custom target | `./river_solver config.json --exploit-pct 0.1` | Train until exploitability ≤ 0.1% pot |
+
+Add `--json` (or `-j`) to emit the full solution tree as JSON to stdout.
 
 ```bash
-# Use a custom config, 50 000 iterations
-./river_solver my_config.json 50000
+# Default convergence (0.25% pot) with text output
+./river_solver examples/river_config.json
 
-# Quick run with default example
-make run ITER=5000
+# Fixed 50k iterations, JSON output
+./river_solver examples/river_config.json 50000 --json
+
+# Tight convergence target
+./river_solver examples/river_config.json -e 0.05 -j > solution.json
+
+# Quick run via Makefile
+make run
+make json
 ```
-
 ## JSON configuration
 
-The solver reads the same JSON format produced by the web UI. Only the fields
-below are consumed; everything else (board, ranges, flop/turn sizing) is
-ignored.
+The solver reads the same JSON format produced by the web UI.
 
 | Path | Type | Default | Description |
 |---|---|---|---|
+| `setup.board` | string | — | Board cards (e.g. `"Qs Jh 2h 8c 5d"`) |
 | `setup.startingPotBb` | number | 20 | Starting pot in bb |
 | `setup.effectiveStackBb` | number | 100 | Effective stack in bb |
+| `ranges.oop` | string | — | OOP range (e.g. `"AA,KK,AKs"`) |
+| `ranges.ip` | string | — | IP range |
 | `treeRules.maxRaisesPerNode` | int | 2 | Max bets / raises per sequence |
 | `treeRules.minBetSizePctPot` | number | 20 | Min bet as % of pot |
 | `treeRules.allInThresholdPctStack` | number | 67 | Bet ≥ X% of stack → all-in |
@@ -61,17 +64,10 @@ ignored.
 | `sizing.oop.river.addAllIn` | bool | false | Include all-in action |
 | `sizing.oop.river.allowLead` | bool | true | Let OOP open-bet (lead) |
 | `sizing.ip.river.*` | — | — | Same structure for IP |
-| `solver.numBuckets` | int | 10 | Equity-bucket count |
-| `solver.iterations` | int | 10 000 | CFR iterations |
+| `solver.targetExploitabilityPctPot` | number | 0.25 | Stop when exploit ≤ X% pot |
+| `solver.maxIterations` | int | 1 000 000 | Safety cap for convergence mode |
 
 See `examples/river_config.json` for a full working example.
-
-## Bucket system
-
-Hands are abstracted into **N equity buckets** numbered 0 through N-1.
-Bucket 0 represents the weakest portion of a player's range; bucket N-1 the
-strongest. At showdown the higher bucket wins. The solver computes an
-independent strategy for every (bucket, action-history) information set.
 
 ## Sizing semantics
 
@@ -83,17 +79,41 @@ independent strategy for every (bucket, action-history) information set.
 
 ## Output
 
-The solver prints the average strategy for every information set, grouped by
-tree node (action history) and sorted by depth:
+### Text mode (default)
+
+Prints the average strategy for every information set, grouped by
+tree node and sorted by depth:
 
 ```
-OOP | (root)
-  [ 0]  check:0.9500  b75:0.0300  b125:0.0100  allin:0.0100
-  [ 9]  check:0.1000  b75:0.3500  b125:0.4000  allin:0.1500
+Game value (OOP): 1.2688 bb
+Exploitability:   0.0423 bb (0.2117% pot)
 
-IP  | check
-  [ 0]  check:0.8500  b75:0.1000  b125:0.0500  allin:0.0000
+Game tree
+============================================================
+
+(root) OOP to act
+  AcAd  check:0.4537  b75:0.5463  allin:0.0000
+  AcAh  check:0.0006  b75:0.9994  allin:0.0000
   ...
 ```
 
-`[N]` is the bucket number. Frequencies sum to 1.0 per row.
+### JSON mode (`--json`)
+
+Writes the full solution tree to stdout. The `meta` object includes:
+
+```json
+{
+  "board": "Qs Jh 2h 8c 5d",
+  "pot": 20.0,
+  "stack": 100.0,
+  "gameValueOop": 1.2688,
+  "iterations": 3750,
+  "exploitability": 0.0423,
+  "exploitabilityPctPot": 0.2117,
+  "oopRange": "AA,KK,QQ,JJ,TT,AKs,AQs,AJs,KQs",
+  "ipRange": "AA,KK,QQ,JJ,TT,99,AKs,AQs,AJs,ATs,KQs,KJs,QJs"
+}
+```
+
+Each node in the `nodes` array contains the strategy map
+(`hand_label → [freq_per_action]`), pot, stacks, and child references.
