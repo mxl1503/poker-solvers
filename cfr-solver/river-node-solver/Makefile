@@ -22,6 +22,9 @@ $(TARGET): $(SRC) $(CORE)/json.hpp $(CORE_HDRS)
 run: $(TARGET)
 	./$(TARGET) $(CONFIG) $(ITER)
 
+json: $(TARGET)
+	./$(TARGET) $(CONFIG) $(ITER) --json
+
 lint:
 	$(CXX) -std=c++20 -I$(CORE) -Wall -Wextra -pedantic -Werror -fsyntax-only $(SRC)
 	clang-format --dry-run --Werror $(SRC)

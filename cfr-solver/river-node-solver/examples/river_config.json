@@ -17,15 +17,15 @@
   "sizing": {
     "ip": {
       "river": {
-        "betSizesPctPot": [75, 125],
-        "raiseSizesPctPot": [250],
+        "betSizesPctPot": [75],
+        "raiseSizesPctPot": [],
         "addAllIn": true
       }
     },
     "oop": {
       "river": {
-        "betSizesPctPot": [75, 125],
-        "raiseSizesPctPot": [250],
+        "betSizesPctPot": [75],
+        "raiseSizesPctPot": [],
         "addAllIn": true,
         "allowLead": true
       }
@@ -33,6 +33,7 @@
   },
   "solver": {
     "numBuckets": 10,
-    "iterations": 100000
+    "targetExploitabilityPctPot": 0.25,
+    "maxIterations": 1000000
   }
 }
