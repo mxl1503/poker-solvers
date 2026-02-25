@@ -1,0 +1,38 @@
+{
+  "setup": {
+    "board": "Qs Jh 2h 8c 5d",
+    "startingStreet": "river",
+    "effectiveStackBb": 100,
+    "startingPotBb": 20
+  },
+  "ranges": {
+    "oop": "AA,KK,QQ,JJ,TT,AKs,AQs,AJs,KQs",
+    "ip": "AA,KK,QQ,JJ,TT,99,AKs,AQs,AJs,ATs,KQs,KJs,QJs"
+  },
+  "treeRules": {
+    "maxRaisesPerNode": 2,
+    "minBetSizePctPot": 20,
+    "allInThresholdPctStack": 67
+  },
+  "sizing": {
+    "ip": {
+      "river": {
+        "betSizesPctPot": [75, 125],
+        "raiseSizesPctPot": [250],
+        "addAllIn": true
+      }
+    },
+    "oop": {
+      "river": {
+        "betSizesPctPot": [75, 125],
+        "raiseSizesPctPot": [250],
+        "addAllIn": true,
+        "allowLead": true
+      }
+    }
+  },
+  "solver": {
+    "numBuckets": 10,
+    "iterations": 100000
+  }
+}
