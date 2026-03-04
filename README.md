@@ -1,7 +1,7 @@
 # Poker Solvers
 
 A collection of Counterfactual Regret Minimization (CFR) solvers for
-heads-up poker, from toy games to real river decisions.
+poker, from toy games to preflop all-in-or-fold and real river decisions.
 
 ## Projects
 
@@ -14,6 +14,18 @@ the known Nash Equilibrium (game value −1/18 for player 1).
 ```bash
 cd kuhn-solver
 make run
+```
+
+### [All-In or Fold Solver](all-in-or-fold-solver/)
+
+Nash equilibrium solver for **preflop All-In or Fold** games with 2–4
+players. Runs entirely in the browser using a WebWorker. Supports unequal
+stacks, side pots, and configurable rake. Built with React + TypeScript.
+
+```bash
+cd all-in-or-fold-solver
+npm install
+npm run dev
 ```
 
 ### [CFR Solver](cfr-solver/)
